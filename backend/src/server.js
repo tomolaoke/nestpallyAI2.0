@@ -1,26 +1,31 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config(); // Load environment variables
+const dotenv = require('dotenv');
+const dbConnect = require('./utils/dbConnect');
+const userRoutes = require('./routes/userRoutes');
+const matchRoutes = require('./routes/matchRoutes');
 
-const app = express(); // Initialize Express app
+// Load environment variables from .env file
+dotenv.config();
+
+// Initialize Express app
+const app = express();
 
 // Middleware
-app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Parse JSON requests
+app.use(cors());
+app.use(express.json());
 
-// MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI;  // Make sure you're getting MONGO_URI from environment variables
-
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch((err) => console.error('Error connecting to nestpallyAI2.0 MongoDB:', err));
+// Database connection
+dbConnect().then(() => console.log('Connected to MongoDB')).catch(console.error);
 
 // Routes
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/match', require('./routes/matchRoutes'));
+app.use('/api/users', userRoutes);
+app.use('/api/match', matchRoutes);
 
-// Start Server
+// Port configuration
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
